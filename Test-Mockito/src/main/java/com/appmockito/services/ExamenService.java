@@ -8,4 +8,5 @@ public interface ExamenService {
     Optional<Examen> findByName(String name);
 
     Examen findExamenByNameWithQuestion(String name);
+    Examen save(Examen examen);
 }

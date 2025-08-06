@@ -36,4 +36,16 @@ public class ExamenServiceImpl implements ExamenService {
             return examen;
         }).orElseThrow();
     }
+
+    @Override
+    public Examen save(Examen examen) {
+//        if (!examen.getQuestions().isEmpty()) {
+//            questionRepository.saveMost(examen.getQuestions());
+//        }
+        Optional.ofNullable(examen.getQuestions())
+                .filter(q -> !q.isEmpty())
+                .ifPresent(questionRepository::saveMost);
+
+        return repository.save(examen);
+    }
 }

@@ -1,12 +1,15 @@
 package com.appmockito.repositories;
 
 import com.appmockito.models.Examen;
-import com.appmockito.services.ExamenService;
 import com.appmockito.services.ExamenServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -14,19 +17,21 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class ExamenRepositoryImplTest {
 
-    ExamenService service;
-    ExamenRepository examenRepository;
+@ExtendWith(MockitoExtension.class)
+class ExamenRepositoryImplTest {
+    @Mock
     QuestionRepository questionRepository;
+    @Mock
+    ExamenRepository examenRepository;
+    //Indicar que cree la instancia e inyecte los repositorios
+    @InjectMocks//-> crea la instancia e inyecta los dos mocks anteriores
+    ExamenServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        //Pasamos como parametro la interfaz que vamos a
-        // querer simular en este caso nuestro repository
-        this.examenRepository = mock(ExamenRepository.class);
-        this.questionRepository = mock(QuestionRepository.class);
-        this.service = new ExamenServiceImpl(examenRepository, questionRepository);
+        //Habilitamos el uso de anotaciones para esta clase
+        MockitoAnnotations.openMocks(this);
     }
 
 
@@ -50,9 +55,26 @@ class ExamenRepositoryImplTest {
 
     @Test
     void testPreguntasExamen() {
-     when(examenRepository.findAll()).thenReturn(Data.EXAMENS);
-     when(questionRepository.findQuestionByExamenId(1L)).thenReturn(Data.QUESTIONS);
-
+        when(examenRepository.findAll()).thenReturn(Data.EXAMENS);
+        when(questionRepository.findQuestionByExamenId(anyLong())).thenReturn(Data.QUESTIONS);
+        Examen examen = service.findExamenByNameWithQuestion("Programacion 2");
+        assertEquals(5, examen.getQuestions().size());
+        assertTrue(examen.getQuestions().contains("aritmetica"));
     }
 
+    @Test
+    void testPreguntasExamenVerify() {
+        when(examenRepository.findAll()).thenReturn(Data.EXAMENS);
+        when(questionRepository.findQuestionByExamenId(anyLong())).thenReturn(Data.QUESTIONS);
+        Examen examen = service.findExamenByNameWithQuestion("Programacion 2");
+        assertEquals(5, examen.getQuestions().size());
+        assertTrue(examen.getQuestions().contains("aritmetica"));
+        //Verificamos que se llama el metodo del repository
+        verify(examenRepository).findAll();
+        verify(questionRepository).findQuestionByExamenId(anyLong());
+    }
+    @Test
+    void testGuardarExamen(){
+        when(examenRepository.save(any(Examen.class))).thenReturn();
+    }
 }
